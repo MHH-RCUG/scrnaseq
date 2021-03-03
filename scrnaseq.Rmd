@@ -21,7 +21,7 @@ options(stringsAsFactors=FALSE,
         "citation_format"="pandoc", 
         dplyr.summarise.inform=FALSE, 
         knitr.table.format="html",
-        future.globals.maxSize=2000000000, mc.cores=4, 
+        future.globals.maxSize=5000000000, mc.cores=1, 
         future.fork.enable=TRUE, future.plan="multicore",
         future.rng.onMisuse="ignore")
 
