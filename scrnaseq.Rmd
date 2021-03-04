@@ -55,8 +55,7 @@ knitr::opts_chunk$set(echo=TRUE, cache=FALSE, message=TRUE, warning=TRUE, tidy=F
 ```
 
 # Dataset description
-* 10x and Smartseq2 datasets of PBMC cells
-* Taken from "Systematic comparative analysis of single cell RNA-sequencing methods" `r knitcitations::citet("10.1186/s13059-019-1863-4")`
+* Analysis of DE differentiation data
 
 ## Project-specific parameters
 This code chunk contains all parameters that are set specifically for the project. 
@@ -64,21 +63,22 @@ This code chunk contains all parameters that are set specifically for the projec
 param = list()
 
 # Project ID
-param$project_id = "pbmc"
+param$project_id = "N1660_N1690"
 
 # Input data path
-param$path_data = data.frame(name=c("pbmc_10x","pbmc_smartseq2"),
-                             type=c("10x","smartseq2"),
-                             path=c("test_datasets/10x_SmartSeq2_pbmc_GSE132044/counts/10x/", "test_datasets/10x_SmartSeq2_pbmc_GSE132044/counts/smartseq2/counts_table.tsv.gz"),  
-                             stats=c(NA, NA))
+param$path_data = data.frame(name=c("dm3", "dm1_SD", "dm1_CA", "d0_SD", "d0_CA", "d3_SD", "d3_SD_2D", "d3_CA"),
+                             type=c("10x","10x","10x","10x","10x","10x","10x","10x"),
+                             path=c("/mnt/ngsnfs/single_cell_dev/example_data/N1660_N1683-N1667_N1690/02_DataProcessing_cellranger/02_counts/N1663_N1686/outs/filtered_feature_bc_matrix", "/mnt/ngsnfs/single_cell_dev/example_data/N1660_N1683-N1667_N1690/02_DataProcessing_cellranger/02_counts/N1661_N1684/outs/filtered_feature_bc_matrix", "/mnt/ngsnfs/single_cell_dev/example_data/N1660_N1683-N1667_N1690/02_DataProcessing_cellranger/02_counts/N1662_N1685/outs/filtered_feature_bc_matrix", "/mnt/ngsnfs/single_cell_dev/example_data/N1660_N1683-N1667_N1690/02_DataProcessing_cellranger/02_counts/N1666_N1689/outs/filtered_feature_bc_matrix", "/mnt/ngsnfs/single_cell_dev/example_data/N1660_N1683-N1667_N1690/02_DataProcessing_cellranger/02_counts/N1667_N1690/outs/filtered_feature_bc_matrix", "/mnt/ngsnfs/single_cell_dev/example_data/N1660_N1683-N1667_N1690/02_DataProcessing_cellranger/02_counts/N1664_N1687/outs/filtered_feature_bc_matrix", "/mnt/ngsnfs/single_cell_dev/example_data/N1660_N1683-N1667_N1690/02_DataProcessing_cellranger/02_counts/N1660_N1683/outs/filtered_feature_bc_matrix",
+"/mnt/ngsnfs/single_cell_dev/example_data/N1660_N1683-N1667_N1690/02_DataProcessing_cellranger/02_counts/N1665_N1688/outs/filtered_feature_bc_matrix"),  
+                             stats=c(NA,NA,NA,NA,NA,NA,NA,NA))
 
 # Output directory
-param$path_out = "test_datasets/10x_SmartSeq2_pbmc_GSE132044/results/"
+param$path_out = "/mnt/ngsnfs/single_cell_dev/users/kosankem/scrnaseq_v1.2/results/"
 
 # Marker genes based on literature, translated to Ensembl IDs
 # xlsx file, one list per column, first row as header and Ensembl IDs below
 # Set to NULL if no known marker genes should be plotted
-param$file_known_markers = "test_datasets/10x_pbmc_1k_healthyDonor_v3Chemistry/known_markers.xlsx"
+param$file_known_markers = "/mnt/ngsnfs/single_cell_dev/users/kosankem/scrnaseq_v1.2/Target_genes.xlsx"
 
 # Annotation via biomaRt
 param$mart_dataset = "hsapiens_gene_ensembl"
@@ -94,7 +94,7 @@ param$biomart_mirror = NULL
 param$mt = "^MT-"
 
 # Filters
-param$cell_filter = list(nFeature_RNA=c(200, NA), percent_mt=c(NA, 20))
+param$cell_filter = list(nFeature_RNA=c(2200, 9000), percent_mt=c(NA, 18))
 param$feature_filter = list(min_counts=1, min_cells=3) # feature has to be found by at least one count in one cell
 
 # Samples to drop 
@@ -118,7 +118,7 @@ param$cc_remove_all = FALSE
 param$cc_rescore_after_merge = TRUE
 
 # Additional (unwanted) variables that will be regressed out for visualisation and clustering
-param$vars_to_regress = c()
+param$vars_to_regress = c("percent_mt", "nCount_RNA")
 
 # Additional (unwanted) variables to be included in the statistical tests
 param$latent_vars = c()
@@ -133,16 +133,16 @@ param$latent_vars = c()
 #
 #   - reference_dataset: When using method "reference", which dataset is the reference? Can be numeric or name of the dataset.
 #   - dimensions: Number of dimensions to consider for integration
-param$integrate_samples = list(method="standard", reference_dataset=1, dimensions=30)
+param$integrate_samples = list(method="merge")
 
 # Which normalisation should be used for analysis: RNA or SCT?
 param$norm = "RNA"
 
 # The number of PCs to use; adjust this parameter based on the Elbowplot 
-param$pc_n = 10
+param$pc_n = 7
 
 # Resolution of clusters; low values will lead to fewer clusters of cells 
-param$cluster_resolution=0.5
+param$cluster_resolution=0.4
 
 # Thresholds to define differentially expressed genes 
 param$padj = 0.05
