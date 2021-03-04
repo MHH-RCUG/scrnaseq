@@ -95,7 +95,7 @@ param$mt = "^MT-"
 
 # Filters
 param$cell_filter = list(nFeature_RNA=c(2200, 9000), percent_mt=c(NA, 18))
-param$feature_filter = list(min_counts=1, min_cells=3) # feature has to be found by at least one count in one cell
+param$feature_filter = list(min_counts=1, min_cells=3, min.features = 200) # feature has to be found by at least one count in one cell
 
 # Samples to drop 
 # Cells from these samples will be dropped after initial QC
