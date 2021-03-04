@@ -424,14 +424,28 @@ sc
 
 The following first table shows metadata (columns) of the first 5 cells (rows). These metadata provide additional information about the cells in the dataset, such as the sample a cell belongs to ("orig.ident"), or the above mentioned number of unique genes detected ("nFeature"). The second table shows metadata (columns) of the first 5 genes (rows), for example the number of cells with at least 1 count for the gene ("num_cells_expr"), and the number of cells with at least as many counts as set in the parameter filter section ("num_cells_expr_threshold"). 
 
+```{r qc_calculate_cells}
+# Calculate percentage of counts in mitochondrial genes for each Seurat object
+sc = purrr::map(sc, Seurat::PercentageFeatureSet, pattern=param$mt, col.name="percent_mt", assay="RNA")
+
+# Calculate percentage of counts in ERCC for each Seurat object (if assay is available)
+sc = purrr::map(sc, function(s) {
+  if ("ERCC" %in% Seurat::Assays(s)) s$percent_ercc = s$nCount_ERCC/(s$nCount_ERCC + s$nCount_RNA)*100
+  return(s)
+  })
+```
+
 ```{r metadata}
 # Combine cell metadata of the Seurat objects into one big metadata
 sc_cell_metadata = suppressWarnings(purrr::map_dfr(sc, function(s){ s[[]] }) %>% as.data.frame())
 
 # Print cell metadata
-knitr::kable(head(sc_cell_metadata), align="l", caption="Cell metadata, top 5 rows") %>%
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))  %>% 
+for (i in seq(length(sc))) {
+knitr::kable(purrr::map(sc[i], function(s) {head(s[[]])}), align="l", caption=names(sc[i])) %>%
+  print() %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
   kableExtra::scroll_box(width="100%")
+}
 
 # Print gene metadata
 knitr::kable(head(sc[[1]][["RNA"]][[]], 5), align="l", caption="Feature metadata, top 5 rows (only first dataset shown)") %>% 
@@ -460,20 +474,6 @@ param$feature_filter = purrr::map(list_names(sc), function(s) {
     return(param$feature_filter)
   }
 })
-```
-
-```{r qc_calculate_cells}
-# Calculate percentage of counts in mitochondrial genes for each Seurat object
-sc = purrr::map(sc, Seurat::PercentageFeatureSet, pattern=param$mt, col.name="percent_mt", assay="RNA")
-
-# Calculate percentage of counts in ERCC for each Seurat object (if assay is available)
-sc = purrr::map(sc, function(s) {
-  if ("ERCC" %in% Seurat::Assays(s)) s$percent_ercc = s$nCount_ERCC/(s$nCount_ERCC + s$nCount_RNA)*100
-  return(s)
-  })
-
-# Combine (again) cell metadata of the Seurat objects into one big metadata, this time including mt and ercc 
-sc_cell_metadata = suppressWarnings(purrr::map_dfr(sc, function(s){ s[[]] }) %>% as.data.frame())
 ```
 
 ```{r qc_calculate_features}
