@@ -422,7 +422,7 @@ if (!is.null(param$downsample_cells_n)) {
 sc
 ```
 
-The following first table shows metadata (columns) of the first 5 cells (rows). These metadata provide additional information about the cells in the dataset, such as the sample a cell belongs to ("orig.ident"), or the above mentioned number of unique genes detected ("nFeature"). The second table shows metadata (columns) of the first 5 genes (rows), for example the number of cells with at least 1 count for the gene ("num_cells_expr"), and the number of cells with at least as many counts as set in the parameter filter section ("num_cells_expr_threshold"). 
+The following table shows metadata (columns) of the first 5 cells (rows). These metadata provide additional information about the cells in the dataset, such as the sample a cell belongs to ("orig.ident"), the above mentioned number of unique genes detected ("nFeature"), or the percentage of mitochondrial genes ("percent_mt"). 
 
 ```{r qc_calculate_cells}
 # Calculate percentage of counts in mitochondrial genes for each Seurat object
@@ -442,15 +442,15 @@ sc_cell_metadata = suppressWarnings(purrr::map_dfr(sc, function(s){ s[[]] }) %>%
 # Print cell metadata
 for (i in seq(length(sc))) {
 knitr::kable(purrr::map(sc[i], function(s) {head(s[[]])}), align="l", caption=names(sc[i])) %>%
-  print() %>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
-  kableExtra::scroll_box(width="100%")
+  kableExtra::scroll_box(width="100%") %>%
+  print()
 }
 
 # Print gene metadata
-knitr::kable(head(sc[[1]][["RNA"]][[]], 5), align="l", caption="Feature metadata, top 5 rows (only first dataset shown)") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))  %>% 
-  kableExtra::scroll_box(width="100%")
+#knitr::kable(head(sc[[1]][["RNA"]][[]], 5), align="l", caption="Feature metadata, top 5 rows (only first dataset shown)") %>% 
+ # kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))  %>% 
+ # kableExtra::scroll_box(width="100%")
 ```
 
 # Pre-processing
@@ -554,9 +554,11 @@ if (length(sc)==1) {
 p
 ```
 
+```{r highest_expression, eval=FALSE}
+#Text
 ## Genes with highest expression
-We next investigate whether there are individual genes that are represented by an unusually high number of counts. For each cell, we first calculate the percentage of counts per gene. Subsequently, for each gene, we calculate the median value of these percentages. Genes with the highest median percentage of counts are plotted below. 
-```{r highest_expression}
+#We next investigate whether there are individual genes that are represented by an unusually high number of counts. For each cell, we first calculate the percentage of counts per gene. Subsequently, for each gene, we calculate the median value of these percentages. Genes with the highest median percentage of counts are plotted below. 
+
 # Plot only samples that we intend to keep 
 sc_names = names(sc)[!(names(sc) %in% param$samples_to_drop)]
 genes_highestExpr = lapply(sc_names, function(i) {
@@ -583,8 +585,10 @@ ggplot(genes_highestExpr_counts, aes(x=name, y=value, col=gene, group=gene)) +
 ```
 
 ## Filtering
-Cells and genes are filtered based on the following thresholds: 
-```{r filter_print_cutoffs}
+```{r filter_print_cutoffs, eval=FALSE}
+#Text
+#Cells and genes are filtered based on the following thresholds: 
+
 cell_filter_list = param$cell_filter %>% unlist(recursive=FALSE)
 cell_filter_tbl = cell_filter_list %>% purrr::reduce(rbind) %>% as.data.frame()
 rownames(cell_filter_tbl) = names(cell_filter_list)
@@ -677,6 +681,29 @@ sc = purrr::map(list_names(sc), function(n) {
   })
   return(subset(sc[[n]], features=purrr::flatten_chr(features_to_keep)))
 })
+```
+
+QC metric for cells after filtering
+```{r qc_plot_correlation_after_filter}
+# Combine cell metadata of the Seurat objects into one big metadata
+sc_cell_metadata_v2 = suppressWarnings(purrr::map_dfr(sc, function(s){ s[[]] }) %>% as.data.frame())
+
+# Correlate QC metrics for cells
+p_list = list()
+p_list[[1]] = ggplot(sc_cell_metadata_v2, aes_string(x=cell_qc_features[2], y=cell_qc_features[1], colour="orig.ident")) +
+  geom_point() + 
+  AddStyle(col=param$col_samples)
+p_list[[2]] = ggplot(sc_cell_metadata_v2, aes_string(x=cell_qc_features[3], y=cell_qc_features[1], colour="orig.ident")) +
+  geom_point() + 
+  AddStyle(col=param$col_samples)
+p = patchwork::wrap_plots(p_list, ncol=2) + patchwork::plot_annotation("Features plotted against each other after filtering")
+
+if (length(sc)==1) {
+  p = p & theme(legend.position="bottom")
+} else {
+  p = p + patchwork::plot_layout(guides = "collect") & theme(legend.position="bottom")
+}
+p
 ```
 
 After filtering, the size of the Seurat object is: 
