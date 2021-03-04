@@ -21,9 +21,8 @@ options(stringsAsFactors=FALSE,
         "citation_format"="pandoc", 
         dplyr.summarise.inform=FALSE, 
         knitr.table.format="html",
-        future.globals.maxSize=3000000000, mc.cores=1, 
-        future.fork.enable=TRUE, future.plan="multicore",
-        future.rng.onMisuse="ignore")
+        mc.cores=1, 
+        future.fork.enable=FALSE)
 
 # Python3 needed for clustering, umap, other python packages
 # Path to binary will be automatically found
