@@ -585,26 +585,25 @@ ggplot(genes_highestExpr_counts, aes(x=name, y=value, col=gene, group=gene)) +
 ```
 
 ## Filtering
-```{r filter_print_cutoffs, eval=FALSE}
-#Text
-#Cells and genes are filtered based on the following thresholds: 
-
+Cells and genes are filtered based on the following thresholds: 
+```{r filter_print_cutoffs}
 cell_filter_list = param$cell_filter %>% unlist(recursive=FALSE)
 cell_filter_tbl = cell_filter_list %>% purrr::reduce(rbind) %>% as.data.frame()
 rownames(cell_filter_tbl) = names(cell_filter_list)
 colnames(cell_filter_tbl) = c("Min", "Max")
 
-feature_filter_list = param$feature_filter %>% unlist(recursive=FALSE)
-feature_filter_tbl = feature_filter_list %>% purrr::reduce(rbind) %>% as.data.frame()
-rownames(feature_filter_tbl) = names(feature_filter_list)
-colnames(feature_filter_tbl) = "n"
+#feature_filter_list = param$feature_filter %>% unlist(recursive=FALSE)
+#feature_filter_tbl = feature_filter_list %>% purrr::reduce(rbind) %>% as.data.frame()
+#rownames(feature_filter_tbl) = names(feature_filter_list)
+#colnames(feature_filter_tbl) = "n"
 
-knitr::kable(cell_filter_tbl, align="l", caption="Filters applied to cells") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+#knitr::kable(cell_filter_tbl, align="l", caption="Filters applied to cells") %>% 
+#  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
   
-knitr::kable(feature_filter_tbl, align="l", caption="Filters applied to genes") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+#knitr::kable(feature_filter_tbl, align="l", caption="Filters applied to genes") %>% 
+#  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
+nFeature_RNA `r cell_filter_tbl[1,1]` - `r cell_filter_tbl[1,2]` and percent_mt `r cell_filter_tbl[2,1]` - `r cell_filter_tbl[2,2]`.
 
 The number of excluded cells and features is as follows: 
 ```{r filter_cells}
