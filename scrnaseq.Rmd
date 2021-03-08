@@ -27,8 +27,8 @@ options(stringsAsFactors=FALSE,
 # Python3 needed for clustering, umap, other python packages
 # Path to binary will be automatically found
 # Set manually if it does not work
-reticulate_python3_path = unname(Sys.which("python3"))
-Sys.setenv(RETICULATE_PYTHON = reticulate_python3_path)
+# reticulate_python3_path = unname(Sys.which("python3"))
+# Sys.setenv(RETICULATE_PYTHON = reticulate_python3_path)
 
 # Required libraries
 library(Seurat) # main
@@ -49,6 +49,8 @@ library(future) # multicore support for Seurat
 # DEG: mast
 # Functional enrichment: enrichR
 # Other: sessioninfo, cerebroApp
+
+use_condaenv("r-reticulate")
 
 # Knitr default options
 knitr::opts_chunk$set(echo=TRUE, cache=FALSE, message=TRUE, warning=TRUE, tidy=FALSE, fig.width=10, class.source='fold-hide')
