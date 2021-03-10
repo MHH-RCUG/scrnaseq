@@ -24,12 +24,6 @@ options(stringsAsFactors=FALSE,
         mc.cores=1, 
         future.fork.enable=FALSE)
 
-# Python3 needed for clustering, umap, other python packages
-# Path to binary will be automatically found
-# Set manually if it does not work
-# reticulate_python3_path = unname(Sys.which("python3"))
-# Sys.setenv(RETICULATE_PYTHON = reticulate_python3_path)
-
 # Required libraries
 library(Seurat) # main
 library(ggplot2) # plots
@@ -38,6 +32,9 @@ library(magrittr) # %>% operator
 library(reticulate) # required for 'leiden' clustering
 library(enrichR) # functional enrichment
 library(future) # multicore support for Seurat
+
+# Use conda to access Python which is needed for clustering, umap and other python packages
+use_condaenv("r-reticulate")
 
 # Other libraries we use
 # Knit: knitr
