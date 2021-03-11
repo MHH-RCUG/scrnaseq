@@ -1617,7 +1617,11 @@ if (!degs_found) warning("No differentially expressed genes found. The following
 We use the term "marker genes" to specifically describe genes that are up-regulated in cells of one cluster compared to the rest. 
 ```{r degs_table, eval=degs_found}
 if (degs_found) {
-  degs_top = DegsUpDisplayTop(degs_filt$up, n=5)
+  degs_top = degs_filt$up %>% 
+      dplyr::group_by(cluster) %>% 
+      dplyr::top_n(n=5, wt=avg_log2FC) %>% 
+      dplyr::select(cluster, gene, avg_log2FC, p_val, p_val_adj, pct.1, pct.2 ) %>% 
+      as.data.frame()
 
   # Show table
   knitr::kable(degs_top, align="l", caption="Up to top 5 marker genes per cell cluster") %>% 
