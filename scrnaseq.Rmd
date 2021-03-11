@@ -1661,8 +1661,8 @@ if (degs_found) {
 }
 ```
 
+```{r degs_plot_violin_raw, eval=FALSE, fig.height=fig_height_degs}
 #### Violin plots (raw)
-```{r degs_plot_violin_raw, eval=degs_found, fig.height=fig_height_degs}
 if (degs_found) {
   # Violin plot of raw gene expression counts
   p_list = Seurat::VlnPlot(sc, features=genes_example, assay="RNA", slot="counts", combine=FALSE, pt.size=0.2)
@@ -1677,11 +1677,11 @@ if (degs_found) {
 }
 ```
 
-#### Violin plots (normalised)
+#### Violin plots
 ```{r degs_plot_violin_norm, eval=degs_found, fig.height=fig_height_degs}
 if (degs_found) {
   # Violin plot of normalised gene expression data
-  p_list = Seurat::VlnPlot(sc, features=genes_example, combine=FALSE, pt.size=0.2)
+  p_list = Seurat::VlnPlot(sc, features=genes_example, combine=FALSE, pt.size=0)
   for (i in seq(p_list)) p_list[[i]] = p_list[[i]] + AddStyle(title=genes_example_titles[i], 
                                                               legend_title="Cluster", 
                                                               fill=param$col_clusters, 
@@ -1694,8 +1694,8 @@ if (degs_found) {
 }
 ```
 
+```{r degs_plot_ridge_raw, eval=FALSE, fig.height=fig_height_degs, message=FALSE}
 #### Ridge plots (raw)
-```{r degs_plot_ridge_raw, eval=degs_found, fig.height=fig_height_degs, message=FALSE}
 if (degs_found) {
   # Ridge plot of raw gene expression counts
   p_list = Seurat::RidgePlot(sc, features=genes_example, assay="RNA", slot="counts", combine=FALSE)
@@ -1713,7 +1713,7 @@ if (degs_found) {
 }
 ```
 
-#### Ridge plots (normalised)
+#### Ridge plots
 ```{r degs_plot_ridge_norm, eval=degs_found, fig.height=fig_height_degs, message=FALSE}
 if (degs_found) {
   # Ridge plot of normalised gene expression data
