@@ -1140,7 +1140,19 @@ if (! param$integrate_samples[["method"]] %in% c("single", "merge")) {
   message("No integrated data available.")
 }
 ```
-  
+
+### Variable genes
+```{r Variable_genes_merged}
+# Show variable genes
+if (param$norm == "RNA") { 
+top10 = head(Seurat::VariableFeatures(sc, assay="RNA"), 10)
+p = Seurat::VariableFeaturePlot(sc, assay="RNA", selection.method="vst", col=c("grey", param$col)) + 
+    theme(legend.position=c(0.2, 0.8), legend.background=element_rect(fill=alpha("white", 0.0)))
+p = LabelPoints(plot=p, points=top10, repel=TRUE, xnudge=0, ynudge=0)
+p
+}
+```
+
 ## Dimensionality reduction
 A single-cell dataset of 20,000 genes and 5,000 cells has 20,000 dimensions. At this point of the analysis, we have already reduced the dimensionality of the dataset to 3,000 variable genes. The biological manifold however can be described by far fewer dimensions than the number of (variable) genes. Dimension reduction methods aim to find these dimensions. There are two general purposes for dimension reduction methods: to summarise a dataset, and to visualise a dataset. 
 
