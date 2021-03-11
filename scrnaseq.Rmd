@@ -782,7 +782,9 @@ While raw data is typically used for statistical tests such as finding marker ge
 # Normalise data the original way
 #   This is required to score cell cycle
 #   https://github.com/satijalab/seurat/issues/1679
+if (param$norm == "RNA") { 
 sc = purrr::map(sc, Seurat::NormalizeData, normalization.method = "LogNormalize", scale.factor=10000, verbose=FALSE)
+}
 ```
 
 ```{r part2_cc_scores}
@@ -858,7 +860,7 @@ p_list = purrr::map(list_names(sc), function(n) {
   top10 = head(Seurat::VariableFeatures(sc[[n]], assay=param$norm), 10)
   p = Seurat::VariableFeaturePlot(sc[[n]], 
                                   assay=param$norm, 
-                                  selection.method=ifelse(param$norm=="RNA", "vst", "sct"), 
+                                  selection.method=ifelse(param$norm=="RNA", "vst"), 
                                   col=c("grey", param$col)) + 
     AddStyle(title=n) + 
     theme(legend.position=c(0.2, 0.8), legend.background=element_rect(fill=alpha("white", 0.0)))
