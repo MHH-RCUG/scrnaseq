@@ -1771,8 +1771,6 @@ p = Seurat::DotPlot(sc, features=top5, cols=c("lightgrey", param$col)) +
 if (degs_found) {
   # Heatmap of all differentially expressed genes
   p = Seurat::DoHeatmap(sc, features=degs_filt$all$gene, group.colors=param$col_clusters, label=FALSE) + 
-    NoLegend() + 
-    theme(axis.text.y=element_blank()) +
     ggtitle("Heatmap of scaled gene expression data, all genes differentially expressed between a cluster and the rest")
   p
 }
@@ -1783,8 +1781,6 @@ if (degs_found) {
 if (degs_found) {
   # Heatmap of all up-regulated genes
   p = Seurat::DoHeatmap(sc, features=degs_filt$up$gene, group.colors=param$col_clusters, label=FALSE) + 
-    NoLegend() + 
-    theme(axis.text.y=element_blank()) +
     ggtitle("Heatmap of scaled gene expression data, genes up-regulated in a cluster compared to the rest")
   p
 }
@@ -1795,8 +1791,6 @@ if (degs_found) {
 if (degs_found) {
   # Heatmap of all differentially expressed genes
   p = Seurat::DoHeatmap(sc, features=degs_filt$down$gene, group.colors=param$col_clusters, label=FALSE) + 
-    NoLegend() + 
-    theme(axis.text.y=element_blank()) +
     ggtitle("Heatmap of scaled gene expression data, , genes down-regulated in a cluster compared to the rest")
   p
 }
