@@ -33,9 +33,6 @@ library(reticulate) # required for 'leiden' clustering
 library(enrichR) # functional enrichment
 library(future) # multicore support for Seurat
 
-# Use conda to access Python which is needed for clustering, umap and other python packages
-use_condaenv("r-reticulate")
-
 # Other libraries we use
 # Knit: knitr
 # Data handling: dplyr, tidyr, purrr, stringr, Matrix, sctransform
@@ -47,6 +44,7 @@ use_condaenv("r-reticulate")
 # Functional enrichment: enrichR
 # Other: sessioninfo, cerebroApp
 
+# Use conda to access Python which is needed for clustering, umap and other python packages
 use_condaenv("r-reticulate")
 
 # Knitr default options
