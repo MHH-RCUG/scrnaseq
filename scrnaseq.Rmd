@@ -1752,22 +1752,13 @@ if (degs_found) {
 ```{r degs_plot_dot, eval=degs_found, fig.height=fig_height_degs*2}
 if (degs_found) {
   # Visualises how feature expression changes across different clusters
-  p_list = lapply(cluster_all, function(cl) {
-    genes = degs_top %>% dplyr::filter(cluster==cl) %>% dplyr::pull(gene)
-    if (length(genes) > 0) { 
-      genes = genes[length(genes):1]
-      p = Seurat::DotPlot(sc, features=genes, cols=c("lightgrey", param$col)) + 
-        AddStyle(title=paste0("Top markers (up-regulated genes) for cluster ", cl), ylab="Cluster", legend_position="bottom") + 
+top5 = degs_top  %>% 
+      dplyr::select(gene) %>% 
+      as.vector()
+p = Seurat::DotPlot(sc, features=top5, cols=c("lightgrey", param$col)) + 
+        AddStyle(title=paste0("Top markers (up-regulated genes) for all clusters"), ylab="Cluster", legend_position="bottom") + 
         theme(axis.text.x = element_text(angle=90, hjust=1, vjust=.5)) + 
         guides(size=guide_legend(order=1))
-      return(p)
-    } else { 
-      message("No up-regulated genes for cluster ", cl, ".")
-      return(NULL)
-    }
-  })
-  
-  p = patchwork::wrap_plots(p_list, ncol=2)
   print(p)
 }
 ```
