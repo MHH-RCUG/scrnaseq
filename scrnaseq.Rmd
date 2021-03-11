@@ -149,7 +149,7 @@ param$log2FC = log2(2)
 param$p_enrichr = 0.05
 
 # Enrichr databases of interest
-param$enrichr_dbs = c("GO_Molecular_Function_2018", "GO_Biological_Process_2018", "GO_Cellular_Component_2018")
+param$enrichr_dbs = c("GO_Biological_Process_2018", "KEGG_2019_Human", "WikiPathways_2019_Human")
 
 # Main colour(s) to use for plots
 param$col = "palevioletred"
