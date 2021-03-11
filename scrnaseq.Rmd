@@ -1595,7 +1595,7 @@ if ((nrow(degs) > 0) & (nrow(degs_filt$all) > 0)) {
   DegsWriteToFile(degs_out, annot_ensembl=annot_ensembl, file=paste0(param$path_out, "/degs_cluster_vs_rest.xlsx"))
 
   # Plot number of differentially expressed genes
-  p = DegsPlotNumbers(degs_up=degs_filt$up, degs_down=degs_filt$down, 
+  p = DegsPlotNumbers(degs_up = degs_filt$down, degs_down = degs_filt$up, 
                       title=paste0("Number of DEGs, comparing each cluster to the rest\n(FC=", 2^param$log2FC, ", adj. p-value=", param$padj, ")")) 
   p
   
