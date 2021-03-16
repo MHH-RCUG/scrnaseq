@@ -1203,6 +1203,9 @@ Seurat's clustering method first constructs a graph structure, where nodes are c
 # Choose the number of PCs to use for clustering
 sc = Seurat::FindNeighbors(sc, dims=1:param$pc_n, verbose=FALSE)
 
+sc_low_r = sc
+sc_high_r = sc
+
 # Cluster using the Leiden algorithm
 # Paper to Leiden algorithm: https://www.nature.com/articles/s41598-019-41695-z
 # Seurat vignette suggests resolution parameter between 0.4-1.2 for datasets of about 3k cells
@@ -1246,8 +1249,34 @@ sc = suppressWarnings(Seurat::RunUMAP(sc, dims=1:param$pc_n, n.components=3, red
 cluster_cells = table(sc@active.ident)
 cluster_labels = paste0(levels(sc@active.ident)," (", cluster_cells[levels(sc@active.ident)],")")
 p = Seurat::DimPlot(sc, reduction="umap", label=TRUE) + 
-  AddStyle(title="UMAP, cells coloured by cluster identity", legend_position="bottom", legend_title="Clusters") + 
+  AddStyle(title=paste0("UMAP, cells coloured by cluster identity; intermediate resolution (", param$cluster_resolution, ")"), legend_position="bottom", legend_title="Clusters") + 
   scale_color_manual(values=param$col_clusters, labels=cluster_labels)
+p
+```
+
+### Low and high resolution clustering as comparison
+While we used an intermediate resolution of `r param$cluster_resolution` for the clustering (displayed above) as standard for the analysis, different resolutions would lead to diverse numbers of clusters. Below we display an example for a low and high resolution clustering. 
+```{r}
+# Low and high resolution as comparison
+sc_low_r = Seurat::FindClusters(sc_low_r, resolution=0.3, algorithm=4, verbose=FALSE, method="igraph")
+
+sc_low_r = BuildClusterTree(sc_low_r, dims=1:param$pc_n, verbose=FALSE)
+
+sc_low_r = suppressWarnings(Seurat::RunUMAP(sc_low_r, dims=1:param$pc_n, verbose=FALSE))
+
+p = Seurat::DimPlot(sc_low_r, reduction="umap", label=TRUE) + 
+  AddStyle(title="UMAP, cells coloured by cluster identity; low resolution (0.3)", legend_position="bottom", legend_title="Clusters")
+p
+
+
+sc_high_r = Seurat::FindClusters(sc_high_r, resolution=0.8, algorithm=4, verbose=FALSE, method="igraph")
+
+sc_high_r = BuildClusterTree(sc_high_r, dims=1:param$pc_n, verbose=FALSE)
+
+sc_high_r = suppressWarnings(Seurat::RunUMAP(sc_high_r, dims=1:param$pc_n, verbose=FALSE, umap.method="uwot"))
+
+p = Seurat::DimPlot(sc_high_r, reduction="umap", label=TRUE) + 
+  AddStyle(title="UMAP, cells coloured by cluster identity; high resolution (0.8)", legend_position="bottom", legend_title="Clusters")
 p
 ```
 
