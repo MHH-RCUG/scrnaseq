@@ -190,6 +190,7 @@ param$pc_n = 10
 
 # Resolution of clusters; low values will lead to fewer clusters of cells 
 param$cluster_resolution=0.5
+param$cluster_resolution_test=c(0.3, 0.7, 0.9)
 
 #######################################################
 # Marker genes and genes with differential expression #
@@ -1283,7 +1284,22 @@ For the current dataset, `r param$pc_n` PCs were chosen.
 
 # Clustering
 Seurat's clustering method first constructs a graph structure, where nodes are cells and edges are drawn between cells with similar gene expression patterns. Technically speaking, Seurat first constructs a K-nearest neighbor (KNN) graph based on Euclidean distance in PCA space, and refines edge weights between cells based on the shared overlap in their local neighborhoods (Jaccard similarity). To partition the graph into highly interconnected parts, cells are iteratively grouped together using the Leiden algorithm `r Cite("10.1038/s41598-019-41695-z", "citep")`. 
-```{r clustering}
+
+# Visualisation with UMAP {.tabset}
+We use a UMAP to visualise and explore a dataset. The goal is to place similar cells together in 2D space, and learn about the biology underlying the data. Cells are color-coded according to the graph-based clustering, and clusters typcially co-localise on the UMAP. 
+
+Take care not to mis-read a UMAP:  
+
+* Parameters influence the plot (we use defaults here)  
+* Cluster sizes relative to each other mean nothing, since the method has a local notion of distance  
+* Distances between clusters might not mean anything  
+* You may need more than one plot  
+  
+For a nice read to intuitively understand UMAP, see `r Cite("https://pair-code.github.io/understanding-umap/")`. 
+
+The clustering was performed based on `r param$pc_n` principal components. In the subsequent analysis the resolution `r param$cluster_resolution` was used, but other clustering by using different resolutions would be possible.
+
+```{r clustering_part1, warning=FALSE, fig.height=5, fig.width=17}
 # Construct phylogenetic tree relating the 'average' cell from each sample
 if (length(levels(sc$orig.ident)) > 1) {
   sc = suppressWarnings(Seurat::BuildClusterTree(sc, features=rownames(sc), verbose=FALSE))
@@ -1294,6 +1310,57 @@ if (length(levels(sc$orig.ident)) > 1) {
 # Choose the number of PCs to use for clustering
 sc = Seurat::FindNeighbors(sc, dims=1:param$pc_n, verbose=FALSE)
 
+# Seurat vignette suggests resolution parameter between 0.4-1.2 for datasets of about 3k cells
+# Test and print different resolutions defined in param$cluster_resolution_test
+if (!is.null(param$cluster_resolution_test)) {
+  
+for (i in param$cluster_resolution_test) {
+
+sc = Seurat::FindClusters(sc, resolution=i, algorithm=4, verbose=FALSE, method="igraph")
+
+# Construct phylogenetic tree relating the 'average' cell from each cluster
+if (length(levels(sc$seurat_clusters)) > 1) {
+   sc = suppressWarnings(Seurat::BuildClusterTree(sc, dims=1:param$pc_n, verbose=FALSE))
+  suppressWarnings({Seurat::Misc(sc, "trees") = c(Seurat::Misc(sc, "trees"), list(seurat_clusters = Seurat::Tool(sc, "Seurat::BuildClusterTree")))})
+}
+
+# Set up colors for clusters and add the sc object
+cluster_names = levels(sc$seurat_clusters)
+param$col_clusters = GenerateColours(num_colours=length(cluster_names), palette=param$col_palette_clusters)
+names(param$col_clusters) = cluster_names
+sc = ScAddLists(sc, lists=list(seurat_clusters=param$col_clusters), lists_slot="colour_lists")
+
+# Default UMAP
+sc = suppressWarnings(Seurat::RunUMAP(sc, dims=1:param$pc_n, verbose=FALSE, umap.method="uwot"))
+
+# 3D UMAP
+sc = suppressWarnings(Seurat::RunUMAP(sc, dims=1:param$pc_n, n.components=3, reduction.name="umap3d", reduction.key="UMAP3D_", verbose=FALSE, umap.method="uwot"))
+
+# Note that you can set `label = TRUE` or use the LabelClusters function to help label individual clusters
+cluster_cells = table(sc@active.ident)
+cluster_labels = paste0(levels(sc@active.ident)," (", cluster_cells[levels(sc@active.ident)],")")
+p = Seurat::DimPlot(sc, reduction="umap", pt.size=1, label=TRUE, label.size = 5 ) + 
+  AddStyle(title=paste0("Cluster resolution: ",i), legend_position="bottom") +
+  FontSize(x.text = 14, y.text = 14, x.title = 18, y.title = 18, main = 22) +
+  scale_color_manual(values=param$col_clusters, labels=cluster_labels)
+  
+
+if (i == param$cluster_resolution_test[1]) {
+  p_list = p
+} else {
+  p_list = p_list + p
+}
+
+}
+
+# p = p_list + patchwork::plot_annotation(title="UMAP, cells coloured by cluster identity;")
+p = patchwork::wrap_plots(p_list) + patchwork::plot_annotation(title="UMAP, cells coloured by cluster identity;", theme = theme(plot.title = element_text(size = 22)) )  
+p
+
+}
+```
+
+```{r clustering_part2}
 # Seurat vignette suggests resolution parameter between 0.4-1.2 for datasets of about 3k cells
 sc = Seurat::FindClusters(sc, resolution=param$cluster_resolution, algorithm=4, verbose=FALSE, method="igraph")
 
@@ -1310,18 +1377,6 @@ names(param$col_clusters) = cluster_names
 sc = ScAddLists(sc, lists=list(seurat_clusters=param$col_clusters), lists_slot="colour_lists")
 
 ```
-
-# Visualisation with UMAP {.tabset}
-We use a UMAP to visualise and explore a dataset. The goal is to place similar cells together in 2D space, and learn about the biology underlying the data. Cells are color-coded according to the graph-based clustering, and clusters typcially co-localise on the UMAP. 
-
-Take care not to mis-read a UMAP:  
-
-* Parameters influence the plot (we use defaults here)  
-* Cluster sizes relative to each other mean nothing, since the method has a local notion of distance  
-* Distances between clusters might not mean anything  
-* You may need more than one plot  
-  
-For a nice read to intuitively understand UMAP, see `r Cite("https://pair-code.github.io/understanding-umap/")`. 
 
 ## Coloured by cluster
 ```{r umap_by_cluster}
