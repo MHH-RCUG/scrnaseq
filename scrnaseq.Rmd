@@ -252,6 +252,9 @@ param$col_palette_samples = "ggsci::pal_jama"
 # Colour palette and colours used for cluster
 param$col_palette_clusters = "ggsci::pal_startrek"
 
+# Set dot size for umaps
+param$pt_size = 1
+
 # Path to git repository
 param$path_to_git = "."
 
@@ -1339,7 +1342,7 @@ sc = suppressWarnings(Seurat::RunUMAP(sc, dims=1:param$pc_n, n.components=3, red
 # Note that you can set `label = TRUE` or use the LabelClusters function to help label individual clusters
 cluster_cells = table(sc@active.ident)
 cluster_labels = paste0(levels(sc@active.ident)," (", cluster_cells[levels(sc@active.ident)],")")
-p = Seurat::DimPlot(sc, reduction="umap", pt.size=1, label=TRUE, label.size = 5 ) + 
+p = Seurat::DimPlot(sc, reduction="umap", pt.size=param$pt_size, label=TRUE, label.size = 5 ) + 
   AddStyle(title=paste0("Cluster resolution: ",i), legend_position="bottom") +
   FontSize(x.text = 14, y.text = 14, x.title = 18, y.title = 18, main = 22) +
   scale_color_manual(values=param$col_clusters, labels=cluster_labels)
@@ -1389,7 +1392,7 @@ sc = suppressWarnings(Seurat::RunUMAP(sc, dims=1:param$pc_n, n.components=3, red
 # Note that you can set `label = TRUE` or use the LabelClusters function to help label individual clusters
 cluster_cells = table(sc@active.ident)
 cluster_labels = paste0(levels(sc@active.ident)," (", cluster_cells[levels(sc@active.ident)],")")
-p = Seurat::DimPlot(sc, reduction="umap", label=TRUE) + 
+p = Seurat::DimPlot(sc, reduction="umap", label=TRUE, pt.size=param$pt_size) + 
   AddStyle(title="UMAP, cells coloured by cluster identity", legend_position="bottom", legend_title="Clusters") + 
   scale_color_manual(values=param$col_clusters, labels=cluster_labels)
 p
@@ -1398,7 +1401,7 @@ p
 ## Coloured by cluster (per sample)
 ```{r umap_by_cluster_seperately}
 # Plot all samples separately
-p = Seurat::DimPlot(sc, reduction="umap", pt.size=1, label=TRUE, split.by = "orig.ident", ncol = 2) + 
+p = Seurat::DimPlot(sc, reduction="umap", pt.size=param$pt_size, label=TRUE, split.by = "orig.ident", ncol = 2) + 
   AddStyle(title="UMAP, cells coloured by cluster identity", legend_position="bottom", legend_title="Clusters") + 
   scale_color_manual(values=param$col_clusters, labels=cluster_labels)
 p
@@ -1410,7 +1413,7 @@ p
 cell_samples = sc[[]] %>% dplyr::pull(orig.ident) %>% unique() %>% sort()
 
 # Note: This is a hack to colour by sample but label by Cluster
-p = Seurat::DimPlot(sc, group.by="orig.ident", pt.size=1, cols=param$col_samples) +
+p = Seurat::DimPlot(sc, group.by="orig.ident", pt.size=param$pt_size, cols=param$col_samples) +
   AddStyle(title="UMAP, cells coloured by sample of origin", legend_position="bottom")
 p$data$seurat_clusters = sc[["seurat_clusters"]][rownames(p$data), ]
 p = LabelClusters(p, id="seurat_clusters")
@@ -1420,7 +1423,7 @@ p
 ## Coloured by sample (per sample)
 ```{r umap_by_sample_seperately}
 # Plot all samples separately
-p = Seurat::DimPlot(sc, group.by="orig.ident", pt.size=1, cols=param$col_samples, split.by = "orig.ident", ncol = 2) +
+p = Seurat::DimPlot(sc, group.by="orig.ident", pt.size=param$pt_size, cols=param$col_samples, split.by = "orig.ident", ncol = 2) +
   AddStyle(title="UMAP, cells coloured by sample of origin", legend_position="bottom")
 p$data$seurat_clusters = sc[["seurat_clusters"]][rownames(p$data), ]
 p = LabelClusters(p, id="seurat_clusters")
@@ -1531,7 +1534,7 @@ p
 ```{r cellCycleEffect_umap_phases}
 # UMAP with phases superimposed
 # Note: This is a hack to colour by phase but label by Cluster
-p = Seurat::DimPlot(sc, group.by="Phase", pt.size=1, cols=Misc(sc, "colour_lists")[["Phase"]]) + 
+p = Seurat::DimPlot(sc, group.by="Phase", pt.size=param$pt_size, cols=Misc(sc, "colour_lists")[["Phase"]]) + 
   AddStyle(title="UMAP, cells coloured by cell cycle phases", legend_title="Phase")
 p$data$seurat_clusters = sc[["seurat_clusters"]][rownames(p$data), ]
 p = LabelClusters(p, id="seurat_clusters")
@@ -1540,21 +1543,21 @@ p
 
 ## UMAP coloured by S phase
 ```{r cellCycleEffect_umap_s}
-p = Seurat::FeaturePlot(sc, features="S.Score", pt.size=1, min.cutoff="q1", max.cutoff="q99", label=TRUE, cols=c("lightgrey", param$col)) + 
+p = Seurat::FeaturePlot(sc, features="S.Score", pt.size=param$pt_size, min.cutoff="q1", max.cutoff="q99", label=TRUE, cols=c("lightgrey", param$col)) + 
   AddStyle(title="UMAP, cells coloured by S phase")
 p
 ```
 
 ## UMAP coloured by G2/M phase
 ```{r cellCycleEffect_umap_g2m}
-p = Seurat::FeaturePlot(sc, features="G2M.Score", pt.size=1, min.cutoff="q1", max.cutoff="q99", cols=c("lightgrey", param$col), label=TRUE) + 
+p = Seurat::FeaturePlot(sc, features="G2M.Score", pt.size=param$pt_size, min.cutoff="q1", max.cutoff="q99", cols=c("lightgrey", param$col), label=TRUE) + 
   AddStyle(title="UMAP, cells coloured by G2M phase")
 p
 ```
 
 ## UMAP coloured by the difference between S and G2/M phase
 ```{r cellCycleEffect_umap_ccdiff}
-p = Seurat::FeaturePlot(sc, features="CC.Difference", pt.size=1, min.cutoff="q1", max.cutoff="q99", cols=c("lightgrey", param$col), label=TRUE) +
+p = Seurat::FeaturePlot(sc, features="CC.Difference", pt.size=param$pt_size, min.cutoff="q1", max.cutoff="q99", cols=c("lightgrey", param$col), label=TRUE) +
   AddStyle(title="UMAP, cells coloured by CC.Difference")
 p
 ```
@@ -1564,7 +1567,7 @@ Do cells in individual clusters have particularly high counts, detected genes or
 
 ## Number of counts 
 ```{r clusterQC_nCount_featurePlot}
-p1 = suppressMessages(Seurat::FeaturePlot(sc, features="nCount_RNA", label=TRUE) + 
+p1 = suppressMessages(Seurat::FeaturePlot(sc, features="nCount_RNA", pt.size=param$pt_size, label=TRUE) + 
   AddStyle(title="Feature plot") + 
   scale_colour_gradient(low="lightgrey", high=param$col, trans="log10"))
 
@@ -1581,7 +1584,7 @@ p
 
 ## Number of features
 ```{r clusterQC_nFeature_featurePlot}
-p1 = suppressMessages(Seurat::FeaturePlot(sc, features="nFeature_RNA", label=TRUE) + 
+p1 = suppressMessages(Seurat::FeaturePlot(sc, features="nFeature_RNA", pt.size=param$pt_size, label=TRUE) + 
   AddStyle(title="Feature plot") + 
   scale_colour_gradient(low="lightgrey", high=param$col, trans="log10"))
 
@@ -1598,7 +1601,7 @@ p
 
 ## Percent mitochondrial reads
 ```{r clusterQC_mt_featurePlot}
-p1 = Seurat::FeaturePlot(sc, features="percent_mt", cols=c("lightgrey", param$col), label=TRUE) + 
+p1 = Seurat::FeaturePlot(sc, features="percent_mt", cols=c("lightgrey", param$col), pt.size=param$pt_size, label=TRUE) + 
   AddStyle(title="Feature plot")
 
 p2 = ggplot(sc[[]], aes(x=seurat_clusters, y=percent_mt, fill=seurat_clusters, group=seurat_clusters)) + 
@@ -1720,7 +1723,7 @@ if ((known_markers_n > 0) & any(idx_avgplot)) {
 An individual feature plot colours single cells on the UMAP according to their normalised gene expression. 
 ```{r knownMarkers_all, fig.height=fig_height_knownMarkers_vect}
 if ((known_markers_n > 0) & length(known_markers_vect) <= 100) {
-  p_list = Seurat::FeaturePlot(sc, features=known_markers_vect, cols=c("lightgrey", param$col), combine=FALSE, label=TRUE)
+  p_list = Seurat::FeaturePlot(sc, features=known_markers_vect, cols=c("lightgrey", param$col), pt.size=param$pt_size, combine=FALSE, label=TRUE)
   for (i in seq(p_list)) p_list[[i]] = p_list[[i]] + AddStyle()
   p = patchwork::wrap_plots(p_list, ncol=2)
   print(p)
@@ -1854,7 +1857,7 @@ if (markers_found) {
   p_list = list()
   for (i in 1:nrow(markers_top)) { 
     p_list[[i]] = Seurat::FeaturePlot(sc, features=markers_top$gene[i], 
-                                      cols=c("lightgrey", param$col_clusters[markers_top$cluster[i]]),  
+                                      cols=c("lightgrey", param$col_clusters[markers_top$cluster[i]]), pt.size=param$pt_size, 
                                       combine=TRUE, label=TRUE) + 
       AddStyle(title=markers_top$labels[i], 
                xlab="", ylab="", 
